@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.happyhouse.model.mapper.AptMapper">
+
+
+	<select id="selectAptList" parameterType="map"
+		resultType="AptDto">
+		select hi.aptCode as aptCode, hi.apartmentName as aptName, hd.dealAmount as dealAmount, hd.area as area, hi.jibun as jibun,
+		hi.roadName as roadName, hi.dong as dong, hd.floor as floor,
+		STR_TO_DATE(concat(hd.dealYear,"-",hd.dealMonth,"-",hd.dealDay),
+		'%Y-%m-%d') as dealDate, lat, lng
+		from houseinfo as hi join housedeal as hd using (aptcode)
+		<where>
+		<if test="apartmentName != null">
+			and hi.apartmentName like concat('%', #{apartmentName}, '%')
+		</if>
+		<if test="dongCode != null">
+			and hi.dongcode like concat('%', #{dongCode}, '%')
+		</if>
+		<if test="gugunCode != null">
+			and hi.dongcode like concat(#{gugunCode}, '%')
+		</if>
+		<if test="sidoCode != null">
+			and hi.dongcode like concat(#{sidoCode}, '%')
+		</if>
+		<if test="year != null">
+			and hd.dealYear= #{year}
+		</if>
+		<if test="month != null">
+			and hd.dealMonth= #{month}
+		</if>
+		</where>
+		limit 0, 1000
+	</select>
+
+	<select id="searchInterestedApt" parameterType="map"
+		resultType="AptDto">
+		select aptCode, dong, roadName, jibun, apartmentName as aptName
+		from followapt as fa join houseinfo as hi using(aptCode)
+		where fa.memberId = #{memberId}
+		limit 0, 10;
+	</select>
+	
+	<insert id="registInterestedApt" parameterType="map">
+		insert into followapt (aptCode, memberId) value (#{aptCode}, #{memberId})
+	</insert>
+	
+	<delete id="deleteInterestedApt" parameterType="map">
+		delete from followapt where aptCode = #{aptCode} and memberId = #{memberId}
+	</delete>
+
+</mapper>
